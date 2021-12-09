@@ -1,0 +1,45 @@
+---
+title: "RPl-MODISTools"
+output: html_document
+---
+This study is a replication of the MODISTools vignette, located [here](https://cran.r-project.org/web/packages/MODISTools/vignettes/modistools-vignette.html), which is an analysis of LAI (leaf area index) near the Bay of Arcachon, France.
+
+## Load packages
+```{r load packages}
+# list of required packages
+packages = c("here", "MODISTools")
+
+# load and install required packages
+package.check <- lapply(
+  packages,
+  FUN = function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE)
+      library(x, character.only = TRUE)
+    }
+  }
+)
+
+# save the R processing environment to r_environment.txt
+writeLines(capture.output(sessionInfo()),here("procedure","environment","r_environment.txt"))
+
+```
+
+## Finding data
+
+There are many products (including bands and dates) availablefor access using MODISTools. To view all the available products from the MODIS sensor, with description, return interval, and resolution, run the following code:
+```{r}
+products <- mt_products()
+head(products)
+```
+To view available bands for a given product:
+```{r}
+bands <- mt_bands(product = "MOD13Q1")
+head(bands)
+```
+To view available dates for a given product at a particular location:
+```{r}
+dates <- mt_dates(product = "MOD13Q1", lat = 42, lon = -110)
+head(dates)
+```
+
