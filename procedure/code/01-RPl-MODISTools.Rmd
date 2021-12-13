@@ -9,7 +9,7 @@ The full MODISTools documentation can be found [here](https://cran.r-project.org
 ## Load packages
 ```{r load packages}
 # list of required packages
-packages = c("here", "MODISTools", "tidyverse", "raster", "dplyr")
+packages = c("here", "MODISTools", "tidyverse", "raster", "dplyr", "stars")
 
 # load and install required packages
 package.check <- lapply(
@@ -28,19 +28,18 @@ writeLines(capture.output(sessionInfo()),here("procedure","environment","r_envir
 ```
 
 ## Finding data
-
 There are many products (including bands and dates) availablefor access using MODISTools. To view all the available products from the MODIS sensor, with description, return interval, and resolution, run the following code:
-```{r}
+```{r view available products from MODIS + description}
 products <- mt_products()
 head(products)
 ```
 To view available bands for a given product:
-```{r}
+```{r view available bands for a product}
 bands <- mt_bands(product = "MCD15A3H")
 head(bands)
 ```
 To view available dates for a given product at a particular location:
-```{r}
+```{r view available dates for a product}
 dates <- mt_dates(product = "MCD15A3H", lat = 32, lon = -117)
 head(dates)
 ```
@@ -50,12 +49,12 @@ Use `mt_subset()` to download timeseries.
 Output is saved to variables called "subset" and "LC" in the R workspace  (as defined by the parameter internal = TRUE, when set to FALSE the data is written to file).
 **Emma, make it save to file**
 This query may take a while.
-```{r}
+```{r download MODIS land cover and LAI data}
 # download the MODIS land cover (IGBP) and NDVI data
 # for a region around the French city and basin of Arcachon
 
 # leaf area index
-fire_lai <- mt_subset(product = "MOD15A2H",
+fire_lai <- mt_subset(product = "MOD15A3H",
                       lat = 32.674,
                       lon =  -116.8054,
                       band = "Lai_500m",
@@ -80,30 +79,8 @@ fire_lc <- mt_subset(product = "MCD12Q1",
                      progress = FALSE)
 ```
 
-
-## Fix this section
-```{r preview LAI}
-head(arcachon_lai)
-```
-
-```{r preview LC}
-head(arcachon_lc)
-```
-
-```{r}
-lc_uniq <- unique(arcachon_lc[c("pixel")])
-nrow(lc_uniq)
-```
-```{r}
-lai_uniq <- unique(arcachon_lai[c("pixel")])
-nrow
-nrow(lai_uniq)
-```
-
-
-
-
-```{r}
+## Process data
+```{r merge land cover and leaf area index}
 # merge land cover and lai data
 fire <- fire_lc %>%
   rename("lc" = "value") %>%
@@ -111,13 +88,7 @@ fire <- fire_lc %>%
   right_join(fire_lai, by = "pixel")
 ```
 
-```{r}
-arcachon %>%
-  group_by(lc) %>% 
-  summarise(count = sum(lc))
-```
-
-```{r}
+```{r determine which classes are present}
 fire %>%
   group_by(lc) %>% 
   summarise(count = sum(lc))
@@ -132,7 +103,7 @@ fire %>%
 16 = barren
 17 = water bodies
 
-```{r}
+```{r check how many lc are NA}
 fire %>% 
   filter(is.na(lc))
 ```
@@ -140,7 +111,7 @@ fire %>%
 
 "Then, filter out all non valid values (> 100), only select evergreen and deciduous land cover classes (1 and 5, or, ENF and DBF respectively), convert them to more readable labels, and across these land cover classes take the **median per acquisition date**."
 
-```{r}
+```{r filter non-valid values + rename classes + take median}
 # create a plot of the data - accounting for the multiplier (scale) component
 fire <- fire %>%
   filter(value <= 100,
@@ -159,13 +130,14 @@ fire <- fire %>%
             lai_mean = median(value * as.double(scale)))
 ```
 
-```{r}
+```{r check how many lc are NA}
 fire %>% 
   filter(is.na(lc))
 ```
 "Finally, the plot will show you the seasonal time series of LAI for both land cover classes (ENF and DBF). Note the difference in timing and amplitude between both these forest types, where the evergreen (ENF) pixels show lower LAI values and a more gradual seasonal pattern compared to the deciduous trees."
 
-```{r}
+Use these plots to explain why to use April as peak vegetation time!
+```{r plot LAI by date and per land cover class}
 # plot LAI by date and per land cover class
 ggplot(fire, aes(x = doy, y = lai_mean)) +
   geom_point() +
@@ -175,7 +147,8 @@ ggplot(fire, aes(x = doy, y = lai_mean)) +
   theme_minimal() +
   facet_wrap(~ lc, scales = "free")
 ```
-```{r}
+
+```{r sinusoidal to lat-long}
 # convert the coordinates from sinusoidal to lat-long
 lat_lon <- sin_to_ll(fire_lc$xllcorner, fire_lc$yllcorner)
 
@@ -207,7 +180,7 @@ points(fire_lc$longitude[1],
 ```
 
 ## Convert to gridded raster data
-```{r}
+```{r convert to raster & plot}
 # convert to raster, when reproject is TRUE
 # the data is reprojected to lat / lon if FALSE
 # the data is shown in its original sinuidal projection
@@ -216,7 +189,16 @@ LC_r <- mt_to_raster(df = fire_lc, reproject = TRUE)
 # plot the raster data as a map
 plot(LC_r)
 ```
-```{r}
+
+```{r write raster to .tif file}
+LC_r_stars <- st_as_stars(LC_r)
+
+write_stars(LC_r_stars, here("results","other","LC_r.tif"))
+```
+
+
+## This stuff might not be important
+```{r convert from sinusoidal to lat-long part 2}
 # convert the coordinates from sinusoidal to lat-long
 lat_lon_lai <- sin_to_ll(fire_lai$xllcorner, fire_lai$yllcorner)
 
@@ -246,7 +228,7 @@ points(fire_lai$longitude[1],
        col = "red")
 ```
 
-```{r}
+```{r convert to raster part ?}
 # convert to raster, when reproject is TRUE
 # the data is reprojected to lat / lon if FALSE
 # the data is shown in its original sinuidal projection
@@ -255,7 +237,8 @@ LAI_r <- mt_to_raster(df = fire_lai, reproject = TRUE)
 # plot the raster data as a map
 plot(LAI_r)
 ```
-```{r}
+
+```{r convert to raster part ?}
 # convert to raster, when reproject is TRUE
 # the data is reprojected to lat / lon if FALSE
 # the data is shown in its original sinuidal projection
