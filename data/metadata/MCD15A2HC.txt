@@ -1,0 +1,754 @@
+MODIS Combined (Terra + Aqua) 8-day composite L4 500m FPAR,LAI (MCD_PR15A2)
+
+Document Revision: 10.11.2013
+
+PGE Version  : 6.0.5
+PGE Release  : 06.09.2014 _SS_
+
+
+Product ID(s): MCD15A2H MODIS Terra + Aqua Gridded 500m FPAR and LAI (8-day composite)
+
+Description:
+
+   MODIS Level-4 500m Combined Fraction of Photosynthetically Active Radiation
+   (FPAR), and Leaf Area Index (LAI).  This 8-day combined algorithm
+   produces a single FPAR,LAI tile product from at least one candidate daily
+   MOD15A1 and one MYD15A1 FPAR,LAI products produced by PGE33.
+   These are tiled using Sinuoidal grid.
+
+   All FPAR and LAI data is stored in HDFEOS v.2.1.x files, as separate
+   grid fields within the MOD_Grid_MCD15A2H grid object.  Note that the LAI
+   product range of {0..100} should be interpreted biophysically as
+   ranging from {0...10.0}, with one digit of implied precision.
+   The HDFEOS file format produced by PGE 34 is the final 8-day
+   FPAR, LAI composite product archived at EDC.
+
+Significant changes:
+   -- In collection 6 the input was changed to MOD15A1H/MYD15A1H, 500m daily LAI/FPAR and the output is
+        500m 8 day LAI/FAR composites.
+
+   -- In version 5.0.0 all metadata issues were fixed as reported by LDOPE. All lookup tables were updated.
+      Weights have been introduced when calculating average LAI over distribution of solutions.
+      Additionally two new SDSs to the product:
+          FparStdDev_500m and LaiStdDev_500m
+      They track the FPAR and LAI standard deviation for pixels produced
+      by the main (R-T) method.
+   -- There is a new FparLai_QC bit layout based on the changes recommended by LDOPE:
+
+         BITFIELDS
+       -------------
+        0,0  MODLAND_QC bits
+             '0' =  Good Quality (main algorithm with or without saturation)
+             '1' =  Other Quality (back-up algorithm or fill values)
+
+        1,1 SENSOR
+             '0' = Terra
+             '1' = Aqua
+
+        2,2  DEADDETECTOR
+             '0' = Detectors apparently fine for up to 50% of channels 1,2
+             '1' = Dead detectors caused >50% adjacent detector retrieval
+
+        3,4  CLOUDSTATE (this inherited from Aggregate_QC bits {0,1} cloud state)
+             '00' = 0 Significant clouds NOT present (clear)
+             '01' = 1 Significant clouds WERE present
+             '10' = 2 Mixed cloud present on pixel
+             '11' = 3 Cloud state not defined,assumed clear
+
+        5,7  SCF_QC (3-bit, (range '000'..100') 5 level Confidence Quality score.
+             '000' = 0, Main (RT) method used, best result possible (no saturation)
+             '001' = 1, Main (RT) method used with saturation. Good,very usable
+             '010' = 2, Main (RT) method failed due to bad geometry, empirical algorithm used
+             '011' = 3, Main (RT) method failed due to problems other than geometry, empirical algorithm used
+             '100' = 4, Pixel not produced at all, value coudn't be retrieved (possible reasons: bad L1B data, unusable MOD09GA data)
+Versioning:
+
+   We currently version-stamp our source code, ancillary files and product files
+   with an identical version and release-timedate stamp, called UM_VERSION.
+   Users may extract this version stamp from any product or ancillary file
+   using a command like this:
+
+               ncdump -h MOD15A2_ANC_RI4.HDF | grep UM_VERSION.
+
+   The latest certified codeset carries this version stamp as a global file
+   attribute in the product files, ancillary files, and within the executable:
+   UM_VERSION =
+    UM_VERSION = "U.MONTANA MODIS PGE34 Vers 5.0.4 Rev 4 Release 10.18.2006 23:59"
+
+Point of Contact:
+
+   Sudipta Sarkar 		      SSAI
+   LDOPE
+   NASA/GSFC Code 922
+   Greenbelt, MD 20771
+
+
+   Sadashiva Devadiga
+   LDOPE
+   NASA/GSFC Code 619
+   Greenbelt, MD 20771
+
+
+Principal Investigator(s):
+   Ranga Myneni
+   Department of Geography
+   675 Commonwealth Avenue
+   Boston University
+   Boston, MA 02215
+
+============================================================================
+Generic Constructs
+
+ECS Metadata Strings:
+
+   Notes:
+      1. "FR" is an abbreviation for "FREE_RANGE".
+      2. "D/T" is an abbreviation for "DATE/TIME"
+      3. (A) means that multiple values are stored within a single array.
+      4. A value of "Variable" indicates that this value will vary
+         according to the granule being processed.
+      5. "M" means class M.
+      6. (C) means that multiple values are stored as class members.
+
+CoreMetadata.0
+    This string will contain the following PVL fields:
+
+                                                     #
+        Field Name                        Data      of   Value
+                                          Type    Values
+  GROUP = INVENTORYMETADATA
+
+    GROUP = CollectionDescriptionClass
+        SHORTNAME                         STRING     1   "MCD15A2H"
+        VERSIONID                         INTEGER    1   6
+    END_GROUP = CollectionDescriptionClass
+
+    GROUP = ECSDataGranule
+        REPROCESSINGPLANNED               STRING     1   "further update is anticipated"
+        REPROCESSINGACTUAL                STRING     1   Variable
+        LOCALGRANULEID                    STRING     1   Variable
+        DAYNIGHTFLAG                      STRING     1   Variable
+        PRODUCTIONDATETIME                D/T        1   Variable
+        LOCALVERSIONID                    STRING     1   Variable
+    END_GROUP = ECSDataGranule
+
+    GROUP = PGEVersionClass
+        PGEVERSION                        STRING     1   Variable
+    END_GROUP = PGEVersionClass
+
+    GROUP = InputGranule
+        INPUTPOINTER                      STRING   FR(A) Variable
+    END_GROUP = InputGranule
+
+    GROUP = RangeDateTime
+        RANGEBEGINNINGDATE                DATE       1   Variable
+        RANGEBEGINNINGTIME                TIME       1   Variable
+        RANGEENDINGDATE                   DATE       1   Variable
+        RANGEENDINGTIME                   TIME       1   Variable
+    END_GROUP = RangeDateTime
+
+    GROUP = SpatialDomainContainer
+      GROUP = HorizontalSpatialDomainContainer
+        GROUP = GPolygon
+          GROUP = GRing
+              EXCLUSIONGRINGFLAG          STRING     1   "N"
+          END_GROUP = GRing
+
+          GROUP = GRingPoint
+              GRINGPOINTLATITUDE          DOUBLE   4(A)  Variable
+              GRINGPOINTLONGITUDE         DOUBLE   4(A)  Variable
+              GRINGPOINTSEQUENCENO        INTEGER  4(A)  Variable
+          END_GROUP = GRingPoint
+        END_GROUP = GPolygon
+      END_GROUP = HorizontalSpatialDomainContainer
+    END_GROUP = SpatialDomainContainer
+
+    GROUP = MeasuredParameter
+        PARAMETERNAME                     STRING     1   "MCDPR15A2H"
+
+        GROUP = QAFlags
+            AUTOMATICQUALITYFLAG          STRING     1    "Pass"
+            AUTOMATICQUALITYFLAGEXPLANATION
+                                          STRING     1    "No automatic quality assessment is performed in the PGE"
+            SCIENCEQUALITYFLAG            STRING     1    Variable
+            SCIENCEQUALITYFLAGEXPLANATION
+                                          STRING     1    "See http://landweb.nascom.nasa.gov/cgi-bin/QA_WWW/qaFlagPage.cgi?sat=terra
+                                                           for the product Science Quality status"
+	END_GROUP = QAFlags
+
+        GROUP = QAStats
+            QAPERCENTINTERPOLATEDDATA      INTEGER    1   Variable
+            QAPERCENTMISSINGDATA           INTEGER    1   Variable
+            QAPERCENTOUTOFBOUNDSDATA       INTEGER    1   Variable
+            QAPERCENTCLOUDCOVER            INTEGER    1   Variable
+        END_GROUP = QAStats
+    ENDGROUP = MeasuredParameter
+
+    GROUP = AdditionalAttributes
+        ADDITIONALATTRIBUTENAME          STRING   FR(C) Variable
+        PARAMETERVALUE                   STRING   FR(C) Variable
+
+        ADDITIONALATTRIBUTENAME.1  = QAPERCENTGOODQUALITY
+        ADDITIONALATTRIBUTENAME.2  = QAPERCENTOTHERQUALITY
+        ADDITIONALATTRIBUTENAME.5  = HORIZONTALTILENUMBER
+        ADDITIONALATTRIBUTENAME.6  = VERTICALTILENUMBER
+	ADDITIONALATTRIBUTENAME.7  = TileID
+
+        *******************************************************
+        * Other SCF defined PSA attributes:
+        *******************************************************
+
+        ADDITIONALATTRIBUTENAME.8  = NDAYS_COMPOSITED
+        ADDITIONALATTRIBUTENAME.9  = QAPERCENTGOODFPAR
+        ADDITIONALATTRIBUTENAME.10  = QAPERCENTGOODLAI
+        ADDITIONALATTRIBUTENAME.11 = QAPERCENTMAINMETHOD
+        ADDITIONALATTRIBUTENAME.12 = QAPERCENTEMPIRICALMODEL
+
+
+    END_GROUP = AdditionalAttributes
+
+    GROUP = AssociatedPlatformInstrumentSensor
+        ASSOCIATEDPLATFORMSHORTNAME                STRING     1   "Terra/Aqua"
+        ASSOCIATEDINSTRUMENTSHORTNAME              STRING     1   "MODIS"
+        ASSOCIATEDSENSORSHORTNAME                  STRING     1   "MODIS"
+    END_GROUP = AssociatedPlatformInstrumentSensor
+
+  ENDGROUP = INVENTORYMETADATA
+
+ProductMetadata.0
+
+    This string will contain the following PVL fields:
+
+                                                     #
+        Field Name                        Data      of   Value
+                                          Type     Values
+
+GROUP = ARCHIVEDMETADATA
+
+    GROUP = BoundingRectangle
+        NORTHBOUNDINGCOORDINATE           DOUBLE     1   Variable
+        SOUTHBOUNDINGCOORDINATE           DOUBLE     1   Variable
+        EASTBOUNDINGCOORDINATE            DOUBLE     1   Variable
+        WESTBOUNDINGCOORDINATE            DOUBLE     1   Variable
+    END_GROUP = BoundingRectangle
+
+
+    ALGORITHMPACKAGEACCEPTANCEDATE        STRING     1   "10-01-2004"
+    ALGORITHMPACKAGEMATURITYCODE          STRING     1   "Normal"
+    ALGORITHMPACKAGENAME                  STRING     1   "MCDPR_15A2"
+    ALGORITHMPACKAGEVERSION               STRING     1   "6"
+    GEOANYABNORMAL                        STRING     1   Variable
+    GEOESTMAXRMSERROR                     DOUBLE     1   Variable
+    LONGNAME                              STRING     1   "MODIS/Terra+Aqua Leaf Area Index/FPAR 8-day L4 Global 500m SIN Grid"
+
+
+    PROCESSINGCENTER                      STRING     1    "MODAPS"
+    PROCESSINGENVIRONMENT                 STRING     1    "set by uname"
+    DESCRREVISION                         STRING     1   Variable
+    SYSTEMFILENAME                        STRING     1   Variable
+    NUMBEROFGRANULES                      INTEGER    1   Variable
+    GRANULEDAYNIGHTFLAG                   STRING   FR(A) Variable
+    GRANULEBEGINNINGDATETIME              D/T      FR(A) Variable
+    GRANULEENDINGDATETIME                 D/T      FR(A) Variable
+    CHARACTERISTICBINANGULARSIZE          DOUBLE     1   Variable
+    CHARACTERISTICBINSIZE                 DOUBLE     1   Variable
+    DATACOLUMNS                           INTEGER    1   Variable
+    DATAROWS                              INTEGER    1   Variable
+    GLOBALGRIDCOLUMNS                     INTEGER    1   Variable
+    GLOBALGRIDROWS                        INTEGER    1   Variable
+    NADIRDATARESOLUTION                   STRING     1   "500m"
+    MAXIMUMOBSERVATIONS			  INTEGER    1   Variable
+    SPSOPARAMETERS			  STRING     2   "5367,2680"
+
+ENDGROUP = ARCHIVEDMETADATA
+
+StructuralMetadata.0
+    This string will be populated automatically by HDF-EOS.
+
+Grid Structure: MOD_Grid_MCD15A2H
+
+    Data Fields:
+	Fpar_500m, Lai_500m, FparLai_QC, FparExtra_QC, FparStdDev_500m, LaiStdDev_500m
+
+    Private Global File Attributes:
+    	Attribute Name		Attribute Type	 Maximum Length
+        -------------------------------------------------------
+    	UM_VERSION			  char8 (max 80 bytes)
+	MOD15A1_ANC_BUILD_CERT            char8 (max 128 bytes)
+	ENGINEERING_DATA		  char8 (max 32 Kbytes)
+
+    Dimensions:
+
+	Dimension       Dimension Name              Value
+
+	Dimension_0     YDim:MOD_Grid_MCD15A2H         "DataRows"
+	Dimension_1     XDim:MOD_Grid_MCD15A2H         "DataColumns"
+
+    Corner Locations:
+
+        Corner                Values
+
+        UpperLeftPointMtrs    (Variable, Variable)
+
+        LowerRightPointMtrs   (Variable, Variable)
+
+    Geographic Grid Projection Parameters:
+         Sinusoidal Projection
+            Projection            GCTP_SNSOID
+            ProjParam[0]          6371007.181
+            ProjParam[1 to 7]     0.0
+            ProjParam[8]          0.0
+            ProjParam[9]          0.0
+            ProjParam[10]         0.0
+            ProjParam[11 to 12]   0.0
+            Spherecode            -1
+            GridOrigin            HDFE_CENTER
+
+
+===========================================================================
+
+Description of HDFEOS Gridfields
+--------------------------------
+
+Data Field_1
+------------
+
+	Data Field Name: Fpar_500m
+
+	Description: Fraction of Photosynthetically Active Radiation, 500m resolution
+
+    Type: HDF-uint8
+
+	Dimensions:
+
+		Dimension Name		Value
+
+		YDim			DataRows
+		XDim			DataColumns
+
+	HDF Attributes:
+                                  Number of
+                                  Values or
+                                    Max.
+        Attribute        Data      String    Value
+                         Type      Length
+
+        long_name        STRING      34      "MCD15A2H MODIS/Terra+Aqua Gridded 500m FPAR (8-day composite)"
+        units            STRING      8       "Percent"
+        valid_range      UINT8       2       0   100
+        _FillValue       UINT8       1       255 (see other fill-value definitions below)
+        scale_factor     FLOAT64     1       0.01
+        add_offset       FLOAT64     1       0.0
+        scale_factor_err FLOAT64     1       0.0
+        add_offset_err   FLOAT64     1       0.0
+        calibrated_nt    INT32       1       21
+
+===========================================
+ NEW NON-TERRESTRIAL FILL-VALUE ASSIGNMENTS
+===========================================
+
+       255 = _Fillvalue: This is assigned when:
+             * the MOD09GA surf reflectance for channel VIS,NIR
+               was assigned its _Fillvalue, or
+             * land cover pixel itself was assigned _Fillvalue 255, or 254.
+       254 = land cover assigned as perennial salt or inland fresh Water
+       253 = land cover assigned as barren,sparse veg (rock,tundra,desert)
+       252 = land cover assigned as perennial snow,ice.
+       251 = land cover assigned as "permanent" wetlands/inundated marshland
+       250 = land cover assigned as urban/built-up
+       249 = land cover assigned as "unclassified" or (not able to determine)
+
+
+Data (HDF NCSA style) conversions (to and from digital to analytical):
+          Fpar_500m     = scale_factor * (file data - add_offset)
+          file data    = (Fpar_500m / scale_factor) + add_offset
+
+
+Data Field_2
+------------
+
+	Data Field Name: Lai_500m
+
+	Description: Leaf Area Index (LAI),
+                     one sided (m^2 plant per m^2 of ground), at 500m resolution
+
+    Type: HDF-uint8
+
+	Dimensions:
+
+		Dimension Name		Value
+
+		YDim			DataRows
+		XDim			DataColumns
+
+	HDF Attributes:
+                                  Number of
+                                  Values or
+                                    Max.
+        Attribute        Data      String    Value
+                         Type      Length
+
+        long_name        STRING      55     "MCD15A2H MODIS/Terra+Aqua Gridded 500m Leaf Area Index (8-day composite)"
+        units            STRING      8       "m^2/m^2"
+        valid_range      UINT8       2       0 100
+        _FillValue       UINT8       1       255 (see other fill-value definitions below)
+        scale_factor     FLOAT64     1       0.10
+        add_offset       FLOAT64     1       0.0
+        scale_factor_err FLOAT64     1       0.0
+        add_offset_err   FLOAT64     1       0.0
+        calibrated_nt    INT32       1       21
+
+===========================================
+ NEW NON-TERRESTRIAL FILL-VALUE ASSIGNMENTS
+===========================================
+
+       255 = _Fillvalue: This is assigned when:
+             * the MOD09GA surf reflectance for channel VIS,NIR
+               was assigned its _Fillvalue, or
+             * land cover pixel itself was assigned _Fillvalue 255, or 254.
+       254 = land cover assigned as perennial salt or inland fresh Water
+       253 = land cover assigned as barren,sparse veg (rock,tundra,desert)
+       252 = land cover assigned as perennial snow,ice.
+       251 = land cover assigned as "permanent" wetlands/inundated marshland
+       250 = land cover assigned as urban/built-up
+       249 = land cover assigned as "unclassified" or (not able to determine)?
+
+Data (HDF NCSA style) conversions (to and from digital to analytical):
+          Lai_500m      = scale_factor * (file data - add_offset)
+          file data    = (Lai_500m / scale_factor) + add_offset
+
+
+Data Field_3
+------------
+(NOTE: IMPORTANT CHANGE IN VERSION 5.0.0 and up - Added SENSOR bit and MODLAND_QC is rediced to 1 bit as per request from LDOPE)
+
+  Data Field Name: FparLai_QC
+
+  Description: QC (quality control) flags for BOTH the Fpar_500m and Lai_500m
+               biophysical variables.
+
+
+  BITS BITFIELD
+  -------------
+  0,0  MODLAND_QC bits
+       '0' =  Good Quality (main algorithm with or without saturation)
+       '1' =  Other Quality (back-up algorithm or fill values)
+
+  1,1 SENSOR
+       '0' = Terra
+       '1' = Aqua
+
+  2,2  DEADDETECTOR
+       '0' = Detectors apparently fine for up to 50% of channels 1,2
+       '1' = Dead detectors caused >50% adjacent detector retrieval
+
+  3,4  CLOUDSTATE (this inherited from Aggregate_QC bits {0,1} cloud state)
+       '00' = 0 Significant clouds NOT present (clear)
+       '01' = 1 Significant clouds WERE present
+       '10' = 2 Mixed cloud present on pixel
+       '11' = 3 Cloud state not defined,assumed clear
+
+  5,7  SCF_QC (3-bit, (range '000'..100') 5 level Confidence Quality score.
+       '000' = 0, Main (RT) method used, best result possible (no saturation)
+       '001' = 1, Main (RT) method used with saturation. Good,very usable
+       '010' = 2, Main (RT) method failed due to bad geometry, empirical algorithm used
+       '011' = 3, Main (RT) method failed due to problems other than geometry, empirical algorithm used
+       '100' = 4, Pixel not produced at all, value coudn't be retrieved (possible reasons: bad L1B data, unusable MOD09GA data)
+
+    Type: HDF-uint8
+
+	Dimensions:
+
+		Dimension Name		Value
+
+		YDim			DataRows
+		XDim			DataColumns
+
+
+	HDF Attributes:
+                                  Number of
+                                  Values or
+                                    Max.
+        Attribute        Data      String    Value
+                         Type      Length
+
+        long_name        STRING      25      "MCD15A2H MODIS/Terra+Aqua QC for FPAR and LAI (8-day composite)"
+        units            STRING      14      "class-flag"
+        valid_range      UINT8       2       0 254
+        _FillValue       UINT8       1       255
+
+
+Data Field_4
+------------
+  (NOTE: change in bit 7 in version 4.0.4 and up )
+
+  Data Field Name: FparExtra_QC
+
+  Description: Extra-detail QC (quality control) flags for both
+               Fpar_500m and Lai_500m biophysical variables.
+
+  BITS BITFIELD
+  -------------
+  0,1 LANDSEA PASS-THRU
+       '00' = 0 LAND       AggrQC(3,5)values{001}
+       '01' = 1 SHORE      AggrQC(3,5)values{000,010,100}
+       '10' = 2 FRESHWATER AggrQC(3,5)values{011,101}
+       '11' = 3 OCEAN      AggrQC(3,5)values{110,111}
+  2,2  SNOW_ICE (from Aggregate_QC bits)
+       '0' = No snow/ice detected
+       '1' = Snow/ice were detected
+  3,3  AEROSOL
+       '0' = No or low atmospheric aerosol levels detected
+       '1' = Average or high aerosol levels detected
+  4,4  CIRRUS (from Aggregate_QC bits {8,9} )
+       '0' = No cirrus detected
+       '1' = Cirrus was detected
+  5,5  INTERNAL_CLOUDMASK
+       '0' = No clouds
+       '1' = Clouds were detected
+  6,6  CLOUD_SHADOW
+       '0' = No cloud shadow detected
+       '1' = Cloud shadow detected
+  7,7  SCF_BIOME_MASK - used to figure out biome interval
+	'0' = Biome outside interval <1,4>
+	'1' = Biome in interval <1,4>
+
+
+
+    Type: HDF-uint8
+
+	Dimensions:
+
+		Dimension Name		Value
+
+		YDim			DataRows
+		XDim			DataColumns
+
+
+	HDF Attributes:
+                                  Number of
+                                  Values or
+                                    Max.
+        Attribute        Data      String    Value
+                         Type      Length
+
+        long_name        STRING      41      "MCD15A2H MODIS/Terra+Aqua pass-through QC for FPAR and LAI (8-day composite)"
+        units            STRING      14      "class-flag"
+        valid_range      UINT8       2       0 254
+        _FillValue       UINT8       1       255
+
+
+
+Data Field_5
+------------
+
+        Data Field Name: FparStdDev_500m
+
+        Description: Standard deviation of Fraction of Photosynthetically Active Radiation, 500m resolution
+
+    Type: HDF-uint8
+
+        Dimensions:
+
+                Dimension Name          Value
+
+                YDim                    DataRows
+                XDim                    DataColumns
+
+        HDF Attributes:
+                                  Number of
+                                  Values or
+                                    Max.
+        Attribute        Data      String    Value
+                         Type      Length
+
+        long_name        STRING      34      "MCD15A2H MODIS/Terra+Aqua Gridded 500m Standard Deviation FPAR (8-day composite)"
+        units            STRING      8       "Percent"
+        valid_range      UINT8       2       0   100
+        _FillValue       UINT8       1       255 (see other fill-value definitions below)
+        scale_factor     FLOAT64     1       0.01
+        add_offset       FLOAT64     1       0.0
+        scale_factor_err FLOAT64     1       0.0
+        add_offset_err   FLOAT64     1       0.0
+        calibrated_nt    INT32       1       21
+
+===========================================
+ NON-TERRESTRIAL AND FILL-VALUE ASSIGNMENTS
+===========================================
+
+       255 = _Fillvalue: This is assigned when:
+             * the MOD09GA surf reflectance for channel VIS,NIR
+               was assigned its _Fillvalue, or
+             * land cover pixel itself was assigned _Fillvalue 255, or 254.
+       254 = land cover assigned as perennial salt or inland fresh Water
+       253 = land cover assigned as barren,sparse veg (rock,tundra,desert)
+       252 = land cover assigned as perennial snow,ice.
+       251 = land cover assigned as "permanent" wetlands/inundated marshland
+       250 = land cover assigned as urban/built-up
+       249 = land cover assigned as "unclassified" or (not able to determine)
+       248 = no standard deviation available, pixel produced using backup method
+
+Data (HDF NCSA style) conversions (to and from digital to analytical):
+          FparStdDev_500m     = scale_factor * (file data - add_offset)
+          file data          = (FparStdDev_500m / scale_factor) + add_offset
+
+
+
+Data Field_6
+------------
+
+        Data Field Name: LaiStdDev_500m
+
+        Description: Standar deviation of Leaf Area Index (LAI),
+                     one sided (m^2 plant per m^2 of ground), at 500m resolution
+
+    Type: HDF-uint8
+
+        Dimensions:
+
+                Dimension Name          Value
+
+                YDim                    DataRows
+                XDim                    DataColumns
+
+        HDF Attributes:
+                                  Number of
+                                  Values or
+                                    Max.
+        Attribute        Data      String    Value
+                         Type      Length
+
+        long_name        STRING      55     "MCD15A2H MODIS/Terra+Aqua Gridded 500m Standard Deviation Leaf Area Index"
+        units            STRING      8       "m^2/m^2"
+        valid_range      UINT8       2       0 100
+        _FillValue       UINT8       1       255 (see other fill-value definitions below)
+        scale_factor     FLOAT64     1       0.10
+        add_offset       FLOAT64     1       0.0
+        scale_factor_err FLOAT64     1       0.0
+        add_offset_err   FLOAT64     1       0.0
+        calibrated_nt    INT32       1       21
+
+===========================================
+ NON-TERRESTRIAL AND FILL-VALUE ASSIGNMENTS
+===========================================
+
+       255 = _Fillvalue: This is assigned when:
+             * the MOD09GA surf reflectance for channel VIS,NIR
+               was assigned its _Fillvalue, or
+             * land cover pixel itself was assigned _Fillvalue 255, or 254.
+       254 = land cover assigned as perennial salt or inland fresh Water
+       253 = land cover assigned as barren,sparse veg (rock,tundra,desert)
+       252 = land cover assigned as perennial snow,ice.
+       251 = land cover assigned as "permanent" wetlands/inundated marshland
+       250 = land cover assigned as urban/built-up
+       249 = land cover assigned as "unclassified" or (not able to determine)
+       248 = no standard deviation available, pixel produced using backup method
+
+Data (HDF NCSA style) conversions (to and from digital to analytical):
+          LaiStdDev_500m     = scale_factor * (file data - add_offset)
+          file data          = (LaiStdDev_500m / scale_factor) + add_offset
+
+
+
+
+PGE34 Product File Global File Attributes (NOT searchable metadata)
+-------------------------------------------------------------------
+
+Attribute Name:		UM_VERSION
+
+Description:		Contains current version of the source code, ancillary files
+			and product files. This is done to help assure that the executable
+                        is run with a compatible ancillary file, and to provide a single
+                        comprehensive versioning stamp common to our executables, product
+                        files and ancillary files.
+
+
+Attribute Name:		ENGINEERING_DATA
+
+Description:		This text attribute contains a development log of various internal
+                        session metrics.  The attribute "ENGINEERING_DATA" is created for
+                        all runs, but is only populated if the LCMP_PCF_ENGDATA runtime switch
+                        is set to "1" in the PCF file. If the LCMP_PCF_ENGDATA switch is set to
+                        "0", the contents of the attribute is "(none-available)".
+                        It's purpose is to more effectively enable post-processing
+                        quality control at the SCF, when there is access to just the HDFEOS product
+                        files and not the original ECS session logs.
+
+
+
+=========================================================================================
+NEW PGE34 OPTIONAL BROWSE FILE GENERATION
+=========================================================================================
+
+--Note that PGE34 now optionally produces a 5km BROWSE (or COARSE) product for each data layer,
+  triggered by the .pcf file runtime input, LCMP_PCF_BROWSE, as a stand alone
+  HDFEOS file. The adjusted gridfield names are each 240x240 pixels and are named:
+    Fpar_5km,
+    Lai_5km,
+    FparLai_5kmQC,
+    FparExtra_5kmQC
+
+
+--The BROWSE generation feature is intended for use in MODAPS, and is NOT intended for
+  routine use within the ECS Production System, as the HDF product files generated
+  are currently not registered ESDTs.
+
+--The separate BROWSE COARSE product file, when produced,  itis named after the PGE34 OUTPUT PRODUCT
+  file as shown below:
+   PRODUCT FILE : MCD15A2H.A2000265.h18v04.005.2000288143421.hdf
+   BROWSE  FILE : MCD15A2HC.A2000265.h18v04.005.2000288143421.hdf
+
+--The default BROWSE PCF runtime input for ECS, to suppress BROWSE generation, is:
+  215050|LCMP_PCF_BROWSE|0
+
+--If for a given tile, the .PCF file contains a runtime input LCMP_PCF_BROWSE that is
+  set to a syntactically valid specification string, PGE34 will optionally produce
+  a separate HDFEOS file containing (4) gridfields, one per standard SDS.
+
+--The valid BROWSE specification string is a comma-delimited list of (3) arguments,
+  with the following:
+
+  LCMP_PCF_BROWSE|[{ew_stride},{ns_stride},{HDFEOS|HDF}
+   where:
+    ew_stride --the systematic skip-factor along the East-West axis
+    ns_stride --the systematic skip-factor along the North-South axis
+    fileType  --HDFEOS indicates a HDFEOS file should be made, or HDF for simple HDF.
+
+
+   The BROWSE COARSE file layout is shown here:
+
+	byte Fpar_5km(YDim:MCD_Grid_MOD15A2H_Browse5km, XDim:MCD_Grid_MOD15A2H_Browse5km) ;
+                Fpar_5km:scale_factor = 0.01 ;
+                Fpar_5km:scale_factor_err = 0. ;
+                Fpar_5km:add_offset = 0. ;
+                Fpar_5km:add_offset_err = 0. ;
+                Fpar_5km:calibrated_nt = 21 ;
+                Fpar_5km:valid_range = 0,100 ;
+                Fpar_5km:_FillValue = 255 ;
+                Fpar_5km:long_name = "MCD15A2HC MODIS/Terra+Aqua BROWSE Gridded 5KM FPAR" ;
+                Fpar_5km:units = "(Percent)" ;
+	byte Lai_5km(YDim:MCD_Grid_MOD15A2H_Browse5km, XDim:MCD_Grid_MOD15A2H_Browse5km) ;
+                Lai_5km:scale_factor = 0.1 ;
+                Lai_5km:scale_factor_err = 0. ;
+                Lai_5km:add_offset = 0. ;
+                Lai_5km:add_offset_err = 0. ;
+                Lai_5km:calibrated_nt = 21 ;
+                Lai_5km:valid_range = 0, 100 ;
+                Lai_5km:_FillValue = 255 ;
+                Lai_5km:long_name = "MCD15A2HC MODIS/Terra+Aqua BROWSE Gridded 5KM Leaf Area Index LAI" ;
+                Lai_5km:units = "(m^2/m^2)" ;
+	byte FparLai_5kmQC(YDim:MCD_Grid_MOD15A2H_Browse5km, XDim:MCD_Grid_MOD15A2H_Browse5km) ;
+                FparLai_5kmQC:valid_range = 0, 254 ;
+                FparLai_5kmQC:_FillValue = 255 ;
+                FparLai_5kmQC:long_name = "MCD15A2HC MODIS/Terra+Aqua BROWSE of QC for 8-day 5KM FPAR and LAI" ;
+                FparLai_5kmQC:units = "(class-flag)" ;
+	byte FparExtra_5kmQC(YDim:MCD_Grid_MOD15A2H_Browse5km, XDim:MCD_Grid_MOD15A2H_Browse5km) ;
+                FparExtra_5kmQC:valid_range = 0, 254 ;
+                FparExtra_5kmQC:_FillValue = 255 ;
+                FparExtra_5kmQC:long_name = "BROWSE of MCD15A2H MODIS/Terra+Aqua pass-through QC for 5KM FPAR and LAI" ;
+                FparExtra_5kmQC:units = "(class-flag)" ;
+
+
+    Global file attributes: "UM_VERSION", char8
+
+    UM_VERSION = "U.MONTANA MODIS PGE34 Vers 5.0.0 Rev 4 Release 10.01.2004 23:59"

@@ -1,0 +1,585 @@
+
+
+MOD12Q1.A.V2.2.96dy.L3
+--------------------
+
+MODIS HDF File Specification
+Version:  6.0.0
+Revision: 1
+Date: 11/18/08
+
+Product Ident:  MCD12Q1.A
+
+Description:    Land Cover Quarterly Product
+
+A note on MCD12 LANDCOVER HDF file designators:
+
+ProductIDs   Status       Description                      Process
+-----------------------------------------------------------------------
+MCD12Q1      archived     quarterly land cover type        MCD12Q
+MCD12Q1C                  quarterly LC 5km Coarse          MCD12Q
+MCD12Q2      archived     quarterly land cover change      MCD12Q
+MCD12C1      archived     land cover - CMG quarterly       MCD12C
+
+=======================================================================
+
+Global Metadata:
+-----------------------------------------------------------------------
+        Name:                       Type: Num_Val: Source:   Value:
+-----------------------------------------------------------------------
+
+CoreMetadata.0
+
+ GROUP = INVENTORYMETADATA
+
+   GROUP = ECSDataGranule
+        PRODUCTIONDATETIME           DATETIME   1    TK      Variable
+        SIZEMBECSDATAGRANULE         DOUBLE     1     DSS    Variable
+        REPROCESSINGPLANNED          STRING     1     PGE    "no further update anticipated"
+        REPROCESSINGACTUAL           STRING     1     PGE    "processed once"
+        LOCALGRANULEID               STRING     1     PGE    Variable
+        DAYNIGHTFLAG                 STRING     1     PGE    Variable
+        LOCALVERSIONID               STRING     1     PGE    Variable
+   END_GROUP = ECSDataGranule
+
+
+   GROUP = CollectionDescriptionClass
+        SHORTNAME                    STRING     1     MCF    "MCD12Q1"
+        VERSIONID                    INTEGER    1     MCF    Variable
+   END_GROUP = CollectionDescriptionClass
+
+   GROUP = PGEVersionClass
+         PGEVERSION                   STRING    1     PGE    "6.0.0" or Variable
+   END_GROUP = PGEVersionClass
+
+   GROUP = InputGranule
+        INPUTPOINTER                 STRING  Array    PGE    Variable
+   END_GROUP = InputGranule
+
+   GROUP = RangeDateTime
+        RANGEBEGINNINGDATE              D/T     1     PGE    Variable
+        RANGEBEGINNINGTIME              D/T     1     PGE    Variable
+        RANGEENDINGDATE                 D/T     1     PGE    Variable
+        RANGEENDINGTIME                 D/T     1     PGE    Variable
+   END_GROUP = RangeDateTime
+
+   GROUP = GRing
+        EXCLUSIONGRINGFLAG           STRING  1     PGE    "N"
+   END_GROUP =GRing
+   GROUP = GRingPoint
+        GRINGPOINTLATITUDE           DOUBLE  4     PGE    Variable
+        GRINGPOINTLONGITUDE          DOUBLE  4     PGE    Variable
+        GRINGPOINTSEQUENCENO         INTEGER 4     PGE    Variable
+   END_GROUP = GRingPoint
+
+   GROUP = MeasuredParameter
+        PARAMETERNAME                STRING  1     PGE    Variable
+
+        GROUP = QAFlags
+           AUTOMATICQUALITYFLAG      STRING  1     PGE    Variable
+           AUTOMATICQUALITYFLAGEXPLANATION
+                                     STRING  1     PGE    Variable
+
+           OPERATIONALQUALITYFLAG    STRING  1     DAAC   Variable
+           OPERATIONALQUALITYFLAGEXPLANATION
+                                     STRING  1     DAAC   Variable
+
+           SCIENCEQUALITYFLAG        STRING  1     DP     Variable
+           SCIENCEQUALITYFLAGEXPLANATION
+                                     STRING  1     DP     Variable
+        END_GROUP = QAFlags
+
+        GROUP = QAStats
+           QAPERCENTINTERPOLATEDDATA INTEGER 1     PGE    Variable
+           QAPERCENTMISSINGDATA      INTEGER 1     PGE    Variable
+           QAPERCENTOUTOFBOUNDSDATA  INTEGER 1     PGE    Variable
+        END_GROUP = QAStats
+   END_GROUP = MeasuredParameter
+
+   GROUP = AdditionalAttributes
+           ADDITIONALATTRIBUTENAME   STRING  1     PGE    Variable
+           ADDITIONALATTRIBUTENAME.1  = QAPERCENTGOODQUALITY
+           ADDITIONALATTRIBUTENAME.2  = QAPERCENTOTHERQUALITY
+           ADDITIONALATTRIBUTENAME.3  = QAPERCENTNOTPRODUCEDCLOUD
+           ADDITIONALATTRIBUTENAME.4  = QAPERCENTNOTPRODUCEDOTHER
+           ADDITIONALATTRIBUTENAME.5  = HORIZONTALTILENUMBER
+           ADDITIONALATTRIBUTENAME.6  = VERTICALTILENUMBER
+           ADDITIONALATTRIBUTENAME.7 = "TileID"
+
+
+        PARAMETERVALUE               STRING  Array PGE    Variable
+   END_GROUP = AdditionalAttributes
+
+
+   GROUP = AssociatedPlatformInstrumentSensor
+        ASSOCIATEDSENSORSHORTNAME     STRING  1     MCF    "MODIS"
+        ASSOCIATEDPLATFORMSHORTNAME   STRING  1     MCF    "Terra+Aqua"
+        ASSOCIATEDINSTRUMENTSHORTNAME STRING  1     MCF    "MODIS"
+   END_GROUP =AssociatedPlatformInstrumentSensor
+
+
+ END_GROUP = INVENTORYMETADATA
+
+
+
+******************************************************************************
+
+
+ArchiveMetadata.0
+
+ GROUP = ARCHIVEMETADATA
+
+   GROUP = BoundingRectangle
+        WESTBOUNDINGCOORDINATE       DOUBLE  1     PGE    Variable
+        NORTHBOUNDINGCOORDINATE      DOUBLE  1     PGE    Variable
+        EASTBOUNDINGCOORDINATE       DOUBLE  1     PGE    Variable
+        SOUTHBOUNDINGCOORDINATE      DOUBLE  1     PGE    Variable
+   END_GROUP = BoundingRectangle
+   DESCRREVISION                     STRING  1     MCF    "3.0"
+   ALGORITHMPACKAGEACCEPTANCEDATE    STRING  1     MCF    "2008-08-20"
+   ALGORITHMPACKAGEMATURITYCODE      STRING  1     MCF    "OPL"
+   ALGORITHMPACKAGENAME              STRING  1     MCF    "MCD12Q1"
+   ALGORITHMPACKAGEVERSION           STRING  1     MCF    "V3.0"
+   GEOANYABNORMAL                    STRING  1     PGE    Variable
+   GEOESTMAXRMSERROR                 DOUBLE  1     PGE    Variable
+   LONGNAME                          STRING  1     PGE    "MODIS/Terra+Aqua Land Cover Type Yearly L3 Global 500m SIN Grid"
+   PROCESSINGCENTER                  STRING  1     PGE    "MODAPS"
+   SPSOPARAMETERS                    STRING  1     PGE    "2669"
+   CHARACTERISTICBINANGULARSIZE      DOUBLE  1     PGE    Variable
+   CHARACTERISTICBINSIZE             DOUBLE  1     PGE    Variable
+   DATACOLUMNS                       INTEGER 1     PGE    Variable
+   DATAROWS                          INTEGER 1     PGE    Variable
+   GLOBALGRIDCOLUMNS                 INTEGER 1     PGE    Variable
+   GLOBALGRIDROWS                    INTEGER 1     PGE    Variable
+   MAXIMUMOBSERVATIONS               INTEGER 1     PGE    Variable
+   NUMBEROFGRANULES                  INTEGER 1     PGE    Variable
+   COVERAGECALCULATIONMETHOD         STRING  1     PGE    Variable
+   NADIRDATARESOLUTION               STRING  1     PGE    Variable
+ END_GROUP = ARCHIVEMETADATA
+
+******************************************************************************
+
+StructuralMetadata.0
+This string will be populated automatically by HDF-EOS.
+
+***************************************************************
+
+Grid Structure:  MOD_Grid_MOD12Q
+
+    Dimensions:
+
+        Dimension       Dimension Name                        Value
+
+        Dimension_1     Ydim:MODIS_Grid_MCD12Q            Data Rows
+        Dimension_2     Xdim:MODIS_Grid_MCD12Q            Data Columns
+        Dimension_3     Num_QC_Words:MODIS_Grid_MCD12Q    Num_QC_Words
+
+    Corner Locations:
+
+        Corner                Values
+
+        UpperLeftPointMtrs    (Variable Variable)
+        LowerRightPointMtrs   (Variable Variable)
+        Projection              String
+        Projection gridID = GCTP_ISINUS
+                ProjParam[0]          6371007.181
+                ProjParam[1]          TBD
+                ProjParam[2]          0.0
+                ProjParam[3]          0.0
+                ProjParam[4]          0.0
+                ProjParam[5]          0.0
+                ProjParam[6]          0.0
+                ProjParam[7]          0.0
+                ProjParam[8]          86400
+                ProjParam[9]          0.0
+                ProjParam[10]         1.0
+                ProjParam[11]         0.0
+                ProjParam[12]         0.0
+                Spherecode            -1
+                GridOrigin            HDFE_GD_UL
+
+
+*************************************************************************
+SDSs
+*************************************************************************
+
+
+   DataFields:
+
+        DataField    Name                    Data      Dimensions
+                                             Type
+
+        DataField_1  Land_Cover_Type_1       UINT8     Dimension_1
+                                                       Dimension_2
+
+                Description:    land cover types (IGBP)
+
+
+                DataField_1 HDF Attributes:
+
+                   long_name      STRING  1   PGE    "Land_Cover_Type_1"
+                   units          STRING  1   PGE     "class number"
+                   valid_range    uint8    2   PGE     0 16
+                   _FillValue     uint8    1   PGE     255
+                   Water          uint8    1   PGE     0
+                   Evergreen needleleaf forest
+                                  uint8    1   PGE     1
+                   Evergreen broadleaf forest
+                                  uint8    1   PGE     2
+                   Deciduous needleleaf forest
+                                  uint8    1   PGE     3
+                   Deciduous broadleaf forest
+                                  uint8    1   PGE     4
+                   Mixed forests  unit8    1   PGE     5
+                   Closed shrubland
+                                  unit8    1   PGE     6
+                   Open shrublands
+                                  unit8    1   PGE     7
+                   Woody savannas unit8    1   PGE     8
+                   Savannas       unit8    1   PGE     9
+                   Grasslands     unit8    1   PGE    10
+                   Permanent wetlands
+                                  unit8    1   PGE    11
+                   Croplands      unit8    1   PGE    12
+                   Urban and built-up
+                                  unit8    1   PGE    13
+                   Cropland/natural vegetation mosaic
+                                  unit8    1   PGE    14
+                   Snow and ice   unit8    1   PGE    15
+                   Barren or sparsely vegetated
+                                  unit8    1   PGE    16
+
+        DataField_2  Land_Cover_Type_2       UINT8     Dimension_1
+                                                       Dimension_2
+
+                Description:    land cover types (UMD)
+
+
+                DataField_2 HDF Attributes:
+                   long_name      STRING   1   PGE    "Land_Cover_Type_2"
+                   units          STRING   1   PGE     "class number"
+                   valid_range    uint8    2   PGE     0 16
+                   _FillValue     uint8    1   PGE     255
+                   Water          uint8    1   PGE     0
+                   Evergreen needleleaf forest
+                                  uint8    1   PGE     1
+                   Evergreen broadleaf forest
+                                  uint8    1   PGE     2
+                   Deciduous needleleaf forest
+                                  uint8    1   PGE     3
+                   Decidous broadleaf forest
+                                  uint8    1   PGE     4
+                   Mixed forests  uint8    1   PGE     5
+                   Closed shrublands
+                                   unit8   1   PGE     6
+                   Open shrubland  unit8   1   PGE     7
+                   Woody savannas  unit8   1   PGE     8
+                   Savannas       unit8    1   PGE     9
+                   Grasslands     uint8    1   PGE    10
+                   Croplands      unit8    1   PGE    12
+                   Urban and built-up
+                                  unit8    1   PGE    13
+                   Barren or sparsely vegetated
+                                  unit8    1   PGE    16
+
+        DataField_3  Land_Cover_Type_3       UINT8     Dimension_1
+                                                       Dimension_2
+
+                Description:    land cover types (LAI/FPAR Biomes)
+
+
+                DataField_3 HDF Attributes:
+
+                   long_name      STRING  1   PGE    "Land_Cover_Type_3"
+                   units          STRING  1   PGE     "class number"
+                   valid_range    uint8   2   PGE     0 10
+                   _FillValue     uint8   1   PGE     255
+                   Water          uint8   1   PGE      0
+                   Grasses/Cereal Crops
+                                  uint8   1   PGE      1
+                   Shrubs         uint8   1   PGE      2
+                   Broadleaf crops
+                                  uint8   1   PGE      3
+                   Savannah       uint8   1   PGE      4
+                   Evergreen Broadleaf forest
+                                  uint8   1   PGE      5
+                   Deciduous Broadleaf forest
+                                  uint8   1   PGE      6
+	           Evergreen Needleleaf forest
+                                  uint8   1   PGE      7
+                   Deciduous Needleleaf forest
+                                  uint8   1   PGE      8
+                   Unvegetated    uint8   1   PGE      9
+                   Urban          uint8   1   PGE      10
+
+
+
+
+        DataField_4  Land_Cover_Type_4       UINT8     Dimension_1
+                                                       Dimension_2
+
+                Description:    land cover types (BGC Biomes)
+
+
+                DataField_4 HDF Attributes:
+
+                   long_name      STRING  1   PGE    "Land_Cover_Type_4"
+                   units          STRING  1   PGE     "class number"
+                   valid_range    uint8   2   PGE     0 8
+                   _FillValue     uint8   1   PGE     255
+                   Water          uint8   1   PGE      0
+                   Evergreen Needleleaf Vegetation
+                                  uint8   1   PGE      1
+                   Evergreen Broadleaf Vegetation
+                                  uint8   1   PGE      2
+                   Deciduous Needleleaf Vegetation
+                                  uint8   1   PGE      3
+                   Deciduous Broadleaf Vegetation
+                                  uint8   1   PGE      4
+                   Annual Broadleaf Vegetation
+                                  uint8   1   PGE      5
+                   Annual Grass Vegetation
+                                  uint8   1   PGE      6
+                   Non-vegetated Land
+                                  uint8   1   PGE      7
+                   Urban          uint8   1   PGE      8
+
+
+
+        DataField_5  Land_Cover_Type_5       UINT8     Dimension_1
+                                                       Dimension_2
+
+                Description:    land cover types (Plant Functional Types)
+
+
+                DataField_1 HDF Attributes:
+
+                   long_name      STRING  1   PGE    "Land_Cover_Type_5"
+                   units          STRING  1   PGE     "class number"
+                   valid_range    uint8   2   PGE     0 11
+                   _FillValue     uint8   1   PGE     255
+                   (TBD)
+	           water          uint8   1   PGE      0
+                   Needleleaf evergreen tree
+                                  uint8   1   PGE      1
+                   Broadleaf evergreen tree
+                                  uint8   1   PGE      2
+                   Needleleaf deciduous tree
+                                  uint8   1   PGE      3
+     	           Broadleaf deciduous tree
+                                  uint8   1   PGE      4
+                   Shrub
+                                  uint8   1   PGE      5
+                   Grass
+                                  uint8   1   PGE      6
+                   Cereal crop
+                                  uint8   1   PGE      7
+                   Broadleaf crop
+                                  uint8   1   PGE      8
+                   Urban          uint8   1   PGE      9
+ 	           Snow and ice   uint8   1   PGE      10
+                   Barren or sparsely vegetated
+                                  uint8   1   PGE      11
+
+
+        DataField_6  Land_Cover_Type_1_Assessment UINT8  Dimension_1
+                                                         Dimension_2
+
+                Description:    Land Cover Assessment (Confidences)
+
+                DataField_6 HDF Attributes:
+
+                   long_name      STRING  1   PGE  "Land_Cover_Assessment"
+                   units          STRING  1   PGE       "percent in integers "
+                   valid_range    uint8   2   PGE       0 100
+                   _FillValue     uint8   1   PGE       255
+
+
+
+        DataField_7  Land_Cover_Type_2_Assessment UINT8  Dimension_1
+                                                         Dimension_2
+
+                Description:    Land Cover Assessment (Confidences)
+
+                DataField_7 HDF Attributes:
+
+                   long_name      STRING  1   PGE  "Land_Cover_Assessment"
+                   units          STRING  1   PGE       "percent in integers "
+                   valid_range    uint8   2   PGE       0 100
+                   _FillValue     uint8   1   PGE       255
+
+
+
+        DataField_8  Land_Cover_Type_3_Assessment UINT8  Dimension_1
+                                                         Dimension_2
+
+                Description:    Land Cover Assessment (Confidences)
+
+                DataField_8 HDF Attributes:
+
+                   long_name      STRING  1   PGE  "Land_Cover_Assessment"
+                   units          STRING  1   PGE       "percent in integers "
+                   valid_range    uint8   2   PGE       0 100
+                   _FillValue     uint8   1   PGE       255
+
+
+
+        DataField_9  Land_Cover_Type_4_Assessment UINT8  Dimension_1
+                                                         Dimension_2
+
+                Description:    Land Cover Assessment (Confidences)
+
+                DataField_9 HDF Attributes:
+
+                   long_name      STRING  1   PGE  "Land_Cover_Assessment"
+                   units          STRING  1   PGE       "percent in integers "
+                   valid_range    uint8   2   PGE       0 100
+                   _FillValue     uint8   1   PGE       255
+
+
+
+        DataField_10  Land_Cover_Type_5_Assessment UINT8  Dimension_1
+                                                          Dimension_2
+
+                Description:    Land Cover Assessment (Confidences)
+
+                DataField_10 HDF Attributes:
+
+                   long_name      STRING  1   PGE  "Land_Cover_Assessment"
+                   units          STRING  1   PGE       "percent in integers "
+                   valid_range    uint8   2   PGE       0 100
+                   _FillValue     uint8   1   PGE       255
+
+
+        DataField_11  Land_Cover_Type_QC     UINT8     Dimension_1
+                                                       Dimension_2
+                                                       Dimension_3
+
+                Description:    Quality flags for Land Cover Type 1
+
+                DataField_3 HDF Attributes:
+
+                  Note:
+                  the first two bits are Mandatory QA
+                           0=processed, good qual
+                           1=processed, other qual
+                           2=not processed, cloud
+                           3=not processed, other
+                  the next two bits are Quarters since last updated
+                           0=1 quarter
+                           1=2 quarters
+                           2=3 quarters
+                           3=4 quarters (1 year)
+                  the final four bits are Land Water mask (as passed down
+                                 from NBARS)
+                            0 = Shallow ocean
+                            1 = Land (Nothing else but land)
+                            2 = Ocean coastlines and lake shorelines
+                            3 = Shallow inland water
+                            4 = Ephemeral water
+                            5 = Deep inland water
+                            6 = Moderate or continental ocean
+                            7 = Deep ocean
+
+
+                   long_name      STRING  1   PGE       "Land_Cover_QC"
+                   units          STRING  1   PGE       "concatenated flags"
+                   valid_range    uint8   2   PGE       0 254
+                   _FillValue     uint8   1   PGE       255
+
+
+        DataField_12  Land_Cover_Type_1_Secondary UINT8     Dimension_1
+                                                            Dimension_2
+
+                Description:   Secondary class
+
+                DataField_12 HDF Attributes:
+
+                   long_name      STRING  1   PGE       "Secondary Class"
+                   units          STRING  1   PGE       "class number "
+                   valid_range    uint8   2   PGE       0 253
+                   _FillValue     uint8   1   PGE       255
+                   Water          uint8    1   PGE     0
+                   Evergreen needleleaf forest
+                                  uint8    1   PGE     1
+                   Evergreen broadleaf forest
+                                  uint8    1   PGE     2
+                   Deciduous needleleaf forest
+                                  uint8    1   PGE     3
+                   Deciduous broadleaf forest
+                                  uint8    1   PGE     4
+                   Mixed forests  unit8    1   PGE     5
+                   Closed shrubland
+                                  unit8    1   PGE     6
+                   Open shrublands
+                                  unit8    1   PGE     7
+                   Woody savannas unit8    1   PGE     8
+                   Savannas       unit8    1   PGE     9
+                   Grasslands     unit8    1   PGE    10
+                   Permanent wetlands
+                                  unit8    1   PGE    11
+                   Croplands      unit8    1   PGE    12
+                   Urban and built-up
+                                  unit8    1   PGE    13
+                   Cropland/natural vegetation mosaic
+                                  unit8    1   PGE    14
+                   Snow and ice   unit8    1   PGE    15
+                   Barren or sparsely vegetated
+                                  unit8    1   PGE    16
+	           backfilled     unit8    1   PGE    253
+
+
+
+        DataField_13 Land_Cover_Type_1_Secondary_Percent UINT8  Dimension_1
+                                                                Dimension_2
+
+                Description:    Percent of secondary class
+
+                DataField_13 HDF Attributes:
+
+                   long_name      STRING  1   PGE       "Secondary Class Percent"
+                   units          STRING  1   PGE       "percent in integers"
+                   valid_range    uint8   2   PGE       0 100
+                   _FillValue     uint8   1   PGE       255
+
+
+
+        DataField_14  LC_Property_1          UINT8         Dimension_1
+                                                           Dimension_2
+
+                Description:  (TBD)
+
+                DataField_14 HDF Attributes:
+
+                   long_name      STRING  1   PGE       "LC Property 1"
+                   units          STRING  1   PGE       "flags for now"
+                   valid_range    uint8   2   PGE       0 254
+                   _FillValue     uint8   1   PGE       255
+
+
+        DataField_15  LC_Property_2            UINT8       Dimension_1
+                                                           Dimension_2
+
+                Description:    (TBD)
+
+                DataField_15 HDF Attributes:
+
+                   long_name      STRING  1   PGE       "LC Property 2"
+                   units          STRING  1   PGE       "flags for now"
+                   valid_range    uint8   2   PGE       0 254
+                   _FillValue     uint8   1   PGE       255
+
+
+        DataField_16  LC_Property_3            UINT8       Dimension_1
+                                                           Dimension_2
+
+                Description:    (TBD)
+
+                DataField_16 HDF Attributes:
+
+                   long_name      STRING  1   PGE       "LC Property 3"
+                   units          STRING  1   PGE       "flags for now"
+                   valid_range    uint8   2   PGE       0 254
+                   _FillValue     uint8   1   PGE       255
+
+End of Grid Structure:  MOD_Grid_MCD12Q

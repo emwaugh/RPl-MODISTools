@@ -1,1 +1,5 @@
 file_path,file_name,format,sources,metadata,status,date_saved
+data/derived/private,LAI_r_03,.tif,MCD15A2H,,,12/13/21
+data/derived/private,LAI_r_19,.tif,MCD15A2H,,,12/13/21
+data/derived/private,LC_r_03,.tif,MCD12Q1,,,12/13/21
+data/derived/private,LC_r_19,.tif,MCD12Q1,,,12/13/21

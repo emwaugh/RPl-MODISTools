@@ -2,14 +2,14 @@
 title: "RPl-MODISTools"
 output: html_document
 ---
-This study is a replication of the MODISTools vignette (located [here](https://cran.r-project.org/web/packages/MODISTools/vignettes/modistools-vignette.html)), which is an analysis of LAI (leaf area index) near the Bay of Arcachon, France.
+This study is a replication of the MODISTools vignette (located [here](https://cran.r-project.org/web/packages/MODISTools/vignettes/modistools-vignette.html)), which is an analysis of LAI (leaf area index) near the Bay of Arcachon, France. Additional code about using `mt_batch_subset` was obtained from Christian John's 2019 tutorial, found [here](https://jepsonnomad.github.io/tutorials/MODISTools_Intro.html). 
 
 The full MODISTools documentation can be found [here](https://cran.r-project.org/web/packages/MODISTools/MODISTools.pdf).
 
 ## Load packages
 ```{r load packages}
 # list of required packages
-packages = c("here", "MODISTools", "tidyverse", "raster", "dplyr", "stars")
+packages = c("here", "MODISTools", "tidyverse", "raster", "dplyr", "stars", "USAboundaries", "ggrepel")
 
 # load and install required packages
 package.check <- lapply(
@@ -35,24 +35,71 @@ head(products)
 ```
 To view available bands for a given product:
 ```{r view available bands for a product}
-bands <- mt_bands(product = "MCD15A3H")
+bands <- mt_bands(product = "MOD15A2H")
 head(bands)
 ```
 To view available dates for a given product at a particular location:
 ```{r view available dates for a product}
-dates <- mt_dates(product = "MCD15A2H", lat = 32, lon = -117)
+dates <- mt_dates(product = "MCD12Q1", lat = 32, lon = -117)
 head(dates)
 ```
 
-## Download timeseries
-Use `mt_subset()` to download timeseries. 
-Output is saved to variables called "subset" and "LC" in the R workspace  (as defined by the parameter internal = TRUE, when set to FALSE the data is written to file).
-**Emma, make it save to file**
-This query may take a while.
-```{r download MODIS land cover and LAI data 03}
-# download the MODIS land cover (IGBP) and NDVI data
-# for a region around the French city and basin of Arcachon
+## Create study area figure
 
+```{r plot study area within California}
+ROI = data.frame("site_name" = c("Study area"),
+                  "lat" = c(32.674),
+                  "lon" = c(-116.8054))
+
+# Access CA boundary shape
+CA = USAboundaries::us_states(resolution = "low",
+                              states = "CA")
+# Plot
+ggplot() +
+  geom_sf(data = CA) +
+  geom_point(data = ROI,
+             aes(x = lon, y = lat)) +
+  geom_text_repel(data = ROI,
+                  aes(x = lon,
+                      y = lat,
+                      label = site_name))
+
+ggsave(here("results", "figures", "study_area.png"))
+```
+
+## Download LAI timeseries
+Use `mt_batch_subset` to download timeseries over longer timescales. 
+```{r download MODIS LAI data 2003-2021}
+dlStart = Sys.time()
+LAI_full = mt_batch_subset(df = ROI,
+                           product = "MOD15A2H",
+                           band = "Lai_500m",
+                           internal = TRUE,
+                           start = "2003-01-01",
+                           end = "2021-12-31")
+dlEnd = Sys.time()
+dlEnd - dlStart
+```
+ 
+```{r plot LAI 2003-2021}
+ggplot(LAI_full,
+       aes(x = as.POSIXct(calendar_date),
+           y = value)) + 
+  geom_point() +
+  geom_line() +
+  geom_smooth() +
+  ylab("LAI") +
+  xlab("Date") +
+  theme_classic() +
+  scale_color_brewer(palette = "Dark2")
+
+ggsave(here("results", "figures", "lai_timeseries.png"))
+```
+# 2003 and 2019 comparison
+## 2003
+### Download data 
+Use `mt_subset()` to download timeseries. 
+```{r download MODIS land cover and LAI data '03}
 # leaf area index
 fire_lai_03 <- mt_subset(product = "MOD15A2H",
                       lat = 32.674,
@@ -79,36 +126,33 @@ fire_lc_03 <- mt_subset(product = "MCD12Q1",
                      progress = FALSE)
 ```
 
-```{r download MODIS land cover and LAI data 21}
-# download the MODIS land cover (IGBP) and NDVI data
-# for a region around the French city and basin of Arcachon
-
+```{r download MODIS land cover and LAI data '19}
 # leaf area index
-fire_lai_21 <- mt_subset(product = "MOD15A2H",
+fire_lai_19 <- mt_subset(product = "MOD15A2H",
                       lat = 32.674,
                       lon =  -116.8054,
                       band = "Lai_500m",
-                      start = "2021-04-01",
-                      end = "2021-04-30",
+                      start = "2019-04-01",
+                      end = "2019-04-30",
                       km_lr = 20,
                       km_ab = 20,
                       site_name = "san diego",
                       internal = TRUE,
                       progress = FALSE)
 # land cover
-fire_lc_21 <- mt_subset(product = "MCD12Q1",
+fire_lc_19 <- mt_subset(product = "MCD12Q1",
                      lat = 32.674,
                      lon =  -116.8054,
                      band = "LC_Type1",
-                     start = "2021-01-01",
-                     end = "2021-12-31",
+                     start = "2019-01-01",
+                     end = "2019-12-31",
                      km_lr = 20,
                      km_ab = 20,
                      site_name = "san_diego",
                      internal = TRUE,
                      progress = FALSE)
 ```
-## Process data
+### Process data
 ```{r merge land cover and leaf area index}
 # merge land cover and lai data
 fire_03 <- fire_lc_03 %>%
@@ -132,12 +176,6 @@ fire_03 %>%
 16 = barren
 17 = water bodies
 
-```{r check how many lc are NA}
-fire_03 %>% 
-  filter(is.na(lc))
-```
-
-
 "Then, filter out all non valid values (> 100), only select evergreen and deciduous land cover classes (1 and 5, or, ENF and DBF respectively), convert them to more readable labels, and across these land cover classes take the **median per acquisition date**."
 
 ```{r filter non-valid values + rename classes + take median}
@@ -159,13 +197,8 @@ fire_03 <- fire_03 %>%
             lai_mean = median(value * as.double(scale)))
 ```
 
-```{r check how many lc are NA}
-fire_03 %>% 
-  filter(is.na(lc))
-```
 "Finally, the plot will show you the seasonal time series of LAI for both land cover classes (ENF and DBF). Note the difference in timing and amplitude between both these forest types, where the evergreen (ENF) pixels show lower LAI values and a more gradual seasonal pattern compared to the deciduous trees."
 
-Use these plots to explain why to use April as peak vegetation time!
 ```{r plot LAI by date and per land cover class}
 # plot LAI by date and per land cover class
 ggplot(fire_03, aes(x = doy, y = lai_mean)) +
@@ -185,12 +218,11 @@ lat_lon_03 <- sin_to_ll(fire_lc_03$xllcorner, fire_lc_03$yllcorner)
 subset_03 <- cbind(fire_lc_03, lat_lon_03)
 
 head(subset_03)
-
 ```
 
 ```{r calculate bounding box of extracted data}
 # convert to bounding box
-bb <- apply(fire_lc_03, 1, function(x){
+bb_03 <- apply(fire_lc_03, 1, function(x){
   mt_bbox(xllcorner = x['xllcorner'],
           yllcorner = x['yllcorner'],
            cellsize = x['cellsize'],
@@ -199,7 +231,7 @@ bb <- apply(fire_lc_03, 1, function(x){
 })
 
 # plot one bounding box
-plot(bb[[1]])
+plot(bb_03[[1]])
 
 # add the location of the queried coordinate within the polygon
 points(fire_lc_03$longitude[1],
@@ -208,49 +240,96 @@ points(fire_lc_03$longitude[1],
        col = "red")
 ```
 
-## Convert to gridded raster data
-```{r convert LC to raster & plot}
+### Convert to gridded raster data
+```{r convert to raster & plot}
 # convert to raster, when reproject is TRUE
 # the data is reprojected to lat / lon if FALSE
 # the data is shown in its original sinuidal projection
-LC_r_03 <- mt_to_raster(df = fire_lc_03, reproject = TRUE)
+LC_r_03 <- mt_to_raster(df = fire_lc_03, reproject = FALSE)
+LAI_r_03 <- mt_to_raster(df = fire_lai_03, reproject = FALSE)
+
 
 # plot the raster data as a map
 plot(LC_r_03)
-```
-```{r convert LAI to raster & plot}
-# convert to raster, when reproject is TRUE
-# the data is reprojected to lat / lon if FALSE
-# the data is shown in its original sinuidal projection
-LAI_r_03 <- mt_to_raster(df = fire_lai_03, reproject = TRUE)
-
-# plot the raster data as a map
 plot(LAI_r_03)
 ```
 
-```{r write rasters to .tif file}
-LC_r_03_stars <- st_as_stars(LC_r_03)
-LAI_r_03_stars <- st_as_stars(LAI_r_03)
 
-write_stars(LC_r_03_stars, here("results","other","LC_r_03.tif"))
-write_stars(LAI_r_03_stars, here("results","other","LAI_r_03.tif"))
+## 2019 (same process as above)
+### Process data
+```{r merge land cover and leaf area index}
+# merge land cover and lai data
+fire_19 <- fire_lc_03 %>%
+  rename("lc" = "value") %>%
+  dplyr::select("lc","pixel") %>%
+  right_join(fire_lai_03, by = "pixel")
 ```
 
+```{r determine which classes are present}
+fire_19 %>%
+  group_by(lc) %>% 
+  summarise(count = sum(lc))
+```
+6 = closed shrublands
+7 = open shrublands
+8 = woody savanna
+9 = savannas
+10 = grasslands
+11 = permanent wetlands
+12 = croplands
+13 = urban and builtup lands
+16 = barren
+17 = water bodies
 
-## This stuff might not be important
-```{r convert from sinusoidal to lat-long part 2}
+"Then, filter out all non valid values (> 100), only select evergreen and deciduous land cover classes (1 and 5, or, ENF and DBF respectively), convert them to more readable labels, and across these land cover classes take the **median per acquisition date**."
+
+```{r filter non-valid values + rename classes + take median}
+# create a plot of the data - accounting for the multiplier (scale) component
+fire_19 <- fire_19 %>%
+  filter(value <= 100,
+         lc %in% c("6", "7", "8", "9", "10", "11", "12", "13", "16")) %>% # retain everything but fill values
+  mutate(lc = case_when(
+    lc == 6 ~ "closedshrub",
+    lc == 7 ~ "openshrub",
+    lc == 8 ~ "woodysavanna",
+    lc == 9 ~ "savanna",
+    lc == 10 ~ "grassland",
+    lc == 11 ~ "wetland",
+    lc == 12 ~ "cropland",
+    lc == 13 ~ "urbanland",
+    lc == 16 ~ "barren")) %>% 
+  group_by(lc, calendar_date) %>% # group by lc and date
+  summarize(doy = as.numeric(format(as.Date(calendar_date)[1],"%j")),
+            lai_mean = median(value * as.double(scale)))
+```
+
+"Finally, the plot will show you the seasonal time series of LAI for both land cover classes (ENF and DBF). Note the difference in timing and amplitude between both these forest types, where the evergreen (ENF) pixels show lower LAI values and a more gradual seasonal pattern compared to the deciduous trees."
+
+Use these plots to explain why to use April as peak vegetation time!
+```{r plot LAI by date and per land cover class}
+# plot LAI by date and per land cover class
+ggplot(fire_19, aes(x = doy, y = lai_mean)) +
+  geom_point() +
+  geom_smooth(span = 0.3, method = "loess") +
+  labs(x = "day of year (DOY)",
+       y = "leaf area index (LAI)") +
+  theme_minimal() +
+  facet_wrap(~ lc, scales = "free")
+```
+
+```{r sinusoidal to lat-long}
 # convert the coordinates from sinusoidal to lat-long
-lat_lon_lai <- sin_to_ll(fire_lai$xllcorner, fire_lai$yllcorner)
+lat_lon_19 <- sin_to_ll(fire_lc_19$xllcorner, fire_lc_19$yllcorner)
 
 # bind with the original dataframe
-subset_lai <- cbind(fire_lai, lat_lon_lai)
+subset_19 <- cbind(fire_lc_19, lat_lon_19)
 
-head(subset_lai)
+head(subset_19)
 ```
 
 ```{r calculate bounding box of extracted data}
 # convert to bounding box
-bb_lai <- apply(fire_lai, 1, function(x){
+bb_19 <- apply(fire_lc_19, 1, function(x){
   mt_bbox(xllcorner = x['xllcorner'],
           yllcorner = x['yllcorner'],
            cellsize = x['cellsize'],
@@ -259,31 +338,104 @@ bb_lai <- apply(fire_lai, 1, function(x){
 })
 
 # plot one bounding box
-plot(bb_lai[[1]])
+plot(bb_19[[1]])
 
 # add the location of the queried coordinate within the polygon
-points(fire_lai$longitude[1],
-       fire_lai$latitude[1],
+points(fire_lc_19$longitude[1],
+       fire_lc_19$latitude[1],
        pch = 20,
        col = "red")
 ```
 
-```{r convert to raster part ?}
+### Convert to gridded raster data
+```{r convert to raster & plot}
 # convert to raster, when reproject is TRUE
 # the data is reprojected to lat / lon if FALSE
 # the data is shown in its original sinuidal projection
-LAI_r <- mt_to_raster(df = fire_lai, reproject = TRUE)
+LC_r_19 <- mt_to_raster(df = fire_lc_19, reproject = FALSE)
+LAI_r_19 <- mt_to_raster(df = fire_lai_19, reproject = FALSE)
+
 
 # plot the raster data as a map
-plot(LAI_r)
+plot(LC_r_19)
+plot(LAI_r_19)
 ```
 
-```{r convert to raster part ?}
-# convert to raster, when reproject is TRUE
-# the data is reprojected to lat / lon if FALSE
-# the data is shown in its original sinuidal projection
-LAI_r_ll <- mt_to_raster(df = fire_lai, reproject = TRUE)
+## Save both rasters for both years
+```{r write rasters to .tif file}
+LC_r_03_stars <- st_as_stars(LC_r_03)
+LAI_r_03_stars <- st_as_stars(LAI_r_03)
 
-# plot the raster data as a map
-plot(LAI_r_ll)
+LC_r_19_stars <- st_as_stars(LC_r_19)
+LAI_r_19_stars <- st_as_stars(LAI_r_19)
+
+write_stars(LC_r_03_stars, here("data", "derived", "private", "LC_r_03.tif"))
+write_stars(LAI_r_03_stars, here("data", "derived", "private", "LAI_r_03.tif"))
+write_stars(LC_r_19_stars, here("data", "derived", "private", "LC_r_19.tif"))
+write_stars(LAI_r_19_stars, here("data", "derived", "private", "LAI_r_19.tif"))
+```
+
+
+## Raster calculator
+```{r calculate difference in LAI between 2019 and 2003}
+test19 <- abs(max(LAI_r_19[[1]], na.rm = TRUE))
+test03 <- abs(max(LAI_r_03[[1]], na.rm = TRUE))
+
+diff <- test19 - test03
+
+plot(test19)
+plot(test03)
+plot(diff)
+```
+
+## Plot LC composition over time
+```{r join two lc datasets to see changes}
+lc_combined <- fire_lc_19 %>%
+  rename("lc19" = "value") %>%
+  dplyr::select("lc19","pixel") %>%
+  right_join(fire_lc_03, by = "pixel") %>% 
+  rename("lc03"= "value")
+
+# preview pixels with changed lc values
+lc_combined %>% 
+  dplyr::select(lc19, lc03) %>% 
+  filter(lc19 != lc03)
+```
+
+
+```{r combine two datasets for plotting}
+fire_lc_19_plot <- fire_lc_19 %>% 
+  mutate(year = "2019")
+
+fire_lc_03_plot <- fire_lc_03 %>% 
+  mutate(year = "2003")
+
+fire_toplot <- rbind(fire_lc_19_plot, fire_lc_03_plot)
+
+fire_toplot <- fire_toplot %>% 
+  mutate(lc_name = case_when(
+    value == 6 ~ "closed shrub",
+    value == 7 ~ "open shrub",
+    value == 8 ~ "woody savanna",
+    value == 9 ~ "savanna",
+    value == 10 ~ "grassland",
+    value == 11 ~ "wetland",
+    value == 12 ~ "cropland",
+    value == 13 ~ "urban land",
+    value == 16 ~ "barren")) %>% 
+  group_by(lc_name, year) %>% 
+  summarise(num = n())
+```
+
+```{r plot 2003 vs. 2019 LC}
+fire_toplot %>% 
+  ggplot(aes(x = num, y = year, fill = lc_name)) + 
+  geom_bar(stat = "identity") + 
+  ylab("Year") + 
+  xlab("Count") + 
+  scale_fill_manual("Land Cover Class", values = c("closed shrub" = "#2C5530", "grassland" = "#A5BE00", "open shrub" = "#DCED31", "savanna" = "#FFC857", "urban land" = "#4A6FA5")) + 
+  theme_classic()
+
+ggsave(here("results", "figures", "lc_comparison.png"))
+
 ```
