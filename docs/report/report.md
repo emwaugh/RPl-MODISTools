@@ -2,7 +2,7 @@
 
 Emma Waugh, Middlebury College
 
-Version 1.0 | Created 2021-12-15 | Last Updated 2021-12-18
+Version 1.0 | Created 2021-12-15 | Last Updated 2021-12-19
 
 ## Abstract
 
@@ -267,8 +267,8 @@ John, C. (2019, January 24). Import, process, and plot NDVI time series data usi
 
 Leaf-Area Index & Fraction of Absorbed Photosynthetically Active Radiation—LAADS DAAC. (n.d.). EarthData. Retrieved December 10, 2021, from [ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/science-domain/lai-and-fpar/](https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/science-domain/lai-and-fpar/)
 
-Li, S., & Banerjee, T. (2021). Spatial and temporal pattern of wildfires in California from 2000 to 2019. Scientific Reports, 11(1), 8779. DOI: [10.1038/s41598-021-88131-9](10.1038/s41598-021-88131-9)
+Li, S., & Banerjee, T. (2021). Spatial and temporal pattern of wildfires in California from 2000 to 2019. Scientific Reports, 11(1), 8779. DOI: [10.1038/s41598-021-88131-9](doi.org/10.1038/s41598-021-88131-9)
 
-Tuck, S. L., Phillips, H. R. P., Hintzen, R. E., Scharlemann, J. P. W., Purvis, A., & Hudson, L. N. (2014). MODISTools – downloading and processing MODIS remotely sensed data in R. Ecology and Evolution, 4(24), 4658–4668. DOI: [10.1002/ece3.1273](10.1002/ece3.1273)
+Tuck, S. L., Phillips, H. R. P., Hintzen, R. E., Scharlemann, J. P. W., Purvis, A., & Hudson, L. N. (2014). MODISTools – downloading and processing MODIS remotely sensed data in R. Ecology and Evolution, 4(24), 4658–4668. DOI: [10.1002/ece3.1273](doi.org/10.1002/ece3.1273)
 
-Zheng, G., & Moskal, L. M. (2009). Retrieving Leaf Area Index (LAI) Using Remote Sensing: Theories, Methods and Sensors. Sensors (Basel, Switzerland), 9(4), 2719–2745. DOI: [10.3390/s90402719](10.3390/s90402719)
+Zheng, G., & Moskal, L. M. (2009). Retrieving Leaf Area Index (LAI) Using Remote Sensing: Theories, Methods and Sensors. Sensors (Basel, Switzerland), 9(4), 2719–2745. DOI: [10.3390/s90402719](doi.org/10.3390/s90402719)
